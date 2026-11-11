@@ -89,7 +89,7 @@ export class HomePage {
   estadoImportacion = signal('');
 
   /** H7: columna y dirección de ordenación activa; los cambios se propagan automáticamente a restaurantesFiltrados */
-  sortColumna = signal<string>('');
+  sortColumna = signal<string>('documentName');
   sortDireccion = signal<'asc' | 'desc'>('asc');
 
   /** Vista activa del segment: tabla o gráficos */

@@ -11,7 +11,7 @@ export class RestauranteService {
   // Obtiene todos los restaurantes de Firestore (incluye el id del documento)
   async getAll(): Promise<Restaurante[]> {
     const snapshot = await getDocs(collection(this.firestore, this.COLECCION));
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Restaurante));
+    return snapshot.docs.map(d => ({ ...d.data(), id: d.id } as Restaurante));
   }
 
   // Borra todos los documentos de la colección
@@ -32,6 +32,7 @@ export class RestauranteService {
 
   // Añade un único restaurante a la colección
   async add(restaurante: Restaurante): Promise<void> {
+    const { id, ...datos } = restaurante;
     const col = collection(this.firestore, this.COLECCION);
     await addDoc(col, restaurante);
   }

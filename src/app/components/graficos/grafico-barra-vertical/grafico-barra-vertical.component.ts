@@ -50,76 +50,83 @@ export class GraficoBarraVerticalComponent implements OnDestroy {
   private render(data: Restaurante[], canvas: HTMLCanvasElement) {
     // TODO: elimina la gráfica anterior antes de volver a pintar cuando
     // el efecto reciba datos nuevos.
-
+    this.chart?.destroy();
     // TODO: 'counts' debe guardar una entrada por territorio. Usa el
     // territorio como clave y reserva un número para acumular restaurantes mediante Map.
-    const counts = null;
+    const counts = new Map<string, number>();
     data.forEach(r => {
       // TODO: extrae de cada restaurante el territorio que quieres dibujar -> campo territory
       // como categoría. Decide cómo tratar los valores vacíos o inexistentes.
-      const territorio = null;
+      const territorio = r.territory?.trim() || 'Desconocido';
       // TODO: recupera el contador de ese territorio, suma el restaurante
       // actual y guarda de nuevo el resultado asociado a la misma clave.
-      
-    });
+      counts.set(territorio, (counts.get(territorio) ?? 0) + 1); 
+   });
 
     // TODO: convierte los grupos en una lista ordenable. Cada entrada
     // conserva el nombre del territorio y el número que debe medir la barra.
     // Elige un criterio de orden que facilite la comparación visual ((a, b) => b[1] - a[1]).
-    const sorted = null;
-
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
     // TODO: crea la gráfica en el canvas y construye la configuración de
     // Chart.js haciendo corresponder cada etiqueta con su valor numérico.
+    
     this.chart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        // TODO: las etiquetas forman las categorías del eje horizontal.
-        labels: [],
-        datasets: [{
-          label: 'Restaurantes',
-          // TODO: los valores deben estar en el mismo orden que las
-          // etiquetas: el primer valor corresponde a la primera categoría.
-          data: [],
-          backgroundColor: [], //CHART_PALETTE[i % CHART_PALETTE.length] + 'bb')
-          borderColor: [], //CHART_PALETTE[i % CHART_PALETTE.length]
-          borderWidth: 2,
-          // borderRadius: redondea las esquinas superiores de cada barra
-          borderRadius: 8,
-          // borderSkipped: false → redondea TODAS las esquinas, no solo la superior
-          borderSkipped: false,
-        }]
-      },
-      options: {
-        // TODO: revisa qué ajustes hacen que el eje numérico comience en
-        // cero y que las divisiones representen cantidades enteras.
-        // responsive: true → la gráfica se redimensiona al cambiar el contenedor
-        responsive: true,
-        // maintainAspectRatio: false → permite controlar la altura desde CSS
-        maintainAspectRatio: false,
-        plugins: {
-          // Ocultamos la leyenda porque el título y el eje X ya identifican los datos
-          legend: { display: false },
-          title: {
-            display: true,
-            text: '',
-            font: { size: 15, weight: 'bold' },
-            color: '#333',
-            padding: { bottom: 14 }
-          },
-          tooltip: {
-            callbacks: {
-              // Sobreescribimos el texto del tooltip para personalizar el mensaje
-              label: ctx => ` ${ctx.parsed.y} restaurantes`
-            }
-          }
+    type: 'bar',
+    data: {
+      // TODO: las etiquetas forman las categorías del eje horizontal.
+      labels: sorted.map(([territorio]) => territorio),
+      datasets: [{
+        label: 'Restaurantes',
+        // TODO: los valores deben estar en el mismo orden que las
+        // etiquetas: el primer valor corresponde a la primera categoría.
+        data: sorted.map(([, cantidad]) => cantidad),
+        backgroundColor: sorted.map((_, i) => CHART_PALETTE[i % CHART_PALETTE.length] + 'bb'), //CHART_PALETTE[i % CHART_PALETTE.length] + 'bb')
+        borderColor: sorted.map((_, i) => CHART_PALETTE[i % CHART_PALETTE.length]), //CHART_PALETTE[i % CHART_PALETTE.length]
+        borderWidth: 2,
+        // borderRadius: redondea las esquinas superiores de cada barra
+        borderRadius: 8,
+        // borderSkipped: false → redondea TODAS las esquinas, no solo la superior
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      // TODO: revisa qué ajustes hacen que el eje numérico comience en
+      // cero y que las divisiones representen cantidades enteras.
+      // responsive: true → la gráfica se redimensiona al cambiar el contenedor
+      responsive: true,
+      // maintainAspectRatio: false → permite controlar la altura desde CSS
+      maintainAspectRatio: false,
+      plugins: {
+        // Ocultamos la leyenda porque el título y el eje X ya identifican los datos
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Restaurante por territorio',
+          font: { size: 15, weight: 'bold' },
+          color: '#ccb3b3',
+          padding: { bottom: 14 }
         },
+        tooltip: {
+          callbacks: {
+            // Sobreescribimos el texto del tooltip para personalizar el mensaje
+            label: ctx => ` ${ctx.parsed.y} restaurantes`
+          }
+        }
+      },
         scales: {
           //TODO: controlar los ticks, beginAtZero, grid... en los x e y si es necesario.
           y: {
-
+            beginAtZero: true,
+            ticks: {
+              precision: 0,
+              stepSize: 25
+            },
+            grid: {display: true, color: 'rgba(0,0,0,0.08)'},
+            
           },
           x: {
-
+            grid: {display: false},
+            ticks: {color: '#ccb3b3',}
           }
         }
       }
