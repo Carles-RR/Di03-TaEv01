@@ -1,0 +1,10 @@
+:host {
+  display: block;   // els components d'Angular són inline per defecte
+  width: 100%;
+  height: 300px;
+}
+
+.chart-container {
+  position: relative; 
+  width: 100%;  
+}

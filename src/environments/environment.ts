@@ -3,7 +3,7 @@ export const environment = {
   production: false,
   auth: {
     email: 'carrodriguez@ikaslea.birt.eus',
-    password: 'AmonAmarth1423',
+    password: 'AmonAmarth',
   },
   firebase : {
     apiKey: "AIzaSyAtEVZZXvSVSeRAqLtFsVs-2945wqe0vFk",
