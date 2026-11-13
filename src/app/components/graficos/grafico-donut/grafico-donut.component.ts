@@ -63,24 +63,28 @@ export class GraficoDonutComponent implements OnDestroy {
   private render(data: Restaurante[], canvas: HTMLCanvasElement) {
     // TODO: destruye la instancia anterior antes de representar los datos
     // de nuevo para no acumular gráficas sobre el mismo canvas.
-
+    this.chart?.destroy();
 
     // TODO: 'counts' debe guardar una entrada por localidad. La clave
     // identificará el sector y el valor determinará su tamaño proporcional.
-    const counts = null;
+    const counts = new Map<string, number>();
     data.forEach(r => {
       // TODO: usa en cada restaurante el campo que identifica la localidad
       // y decide qué texto mostrar cuando no exista ese dato -> locality
-      const loc = null;
+      const loc = r.locality?.trim() || 'Desconocido';
+
       // TODO: localiza el recuento actual de la localidad, incrementa el
       // valor y conserva el nuevo total para el siguiente restaurante.
+      counts.set(loc, (counts.get(loc) ?? 0) + 1);
    
     });
 
     // TODO: convierte los recuentos en una lista de parejas localidad- cantidad, 
     // ordénala de mayor a menor y limita los sectores mostrados para que el gráfico siga siendo legible. 
     // Para recortar la lista podemos hacer uso de slice(0, 10)
-    const top10 = null;
+    const top10 = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
 
     // TODO: en un donut no hay ejes. Relaciona cada localidad con su
     // cantidad y configura una única serie, ya que cada sector pertenece a
@@ -90,11 +94,23 @@ export class GraficoDonutComponent implements OnDestroy {
       data: {
         // TODO: extrae por separado las claves y los valores de las
         // entradas, manteniendo el mismo orden en ambas listas.
-        labels: [],
+
+        labels: top10.map(([nombre]) => nombre),
         datasets: [{
-          data: [],
-          backgroundColor: [], //CHART_PALETTE[i % CHART_PALETTE.length] + 'bb'
-          borderColor: [], //CHART_PALETTE[i % CHART_PALETTE.length]
+          data: top10.map(([, cantidad]) => cantidad),
+          
+          backgroundColor: top10.map(([nombre], i) =>
+            nombre === 'Desconocido'
+            ? '#bdbdbdbb'
+            : CHART_PALETTE[i % CHART_PALETTE.length] + 'bb'
+          ), //CHART_PALETTE[i % CHART_PALETTE.length] + 'bb'
+          
+          borderColor: top10.map(([nombre], i) =>
+            nombre === 'Desconocido'
+              ? '#bdbdbd'
+              : CHART_PALETTE[i % CHART_PALETTE.length]
+          ), //CHART_PALETTE[i % CHART_PALETTE.length]
+          
           borderWidth: 2,
           // hoverOffset: desplaza el sector N px hacia afuera al pasar el ratón
           hoverOffset: 10
@@ -106,11 +122,18 @@ export class GraficoDonutComponent implements OnDestroy {
         plugins: {
           legend: {
             //TODO: Añadir la leyenda y su configuración, position y label
-
+            display:true,
+            position: 'right',
+            labels: {
+              color: '#555',
+              padding: 12,
+              boxWidth: 14,
+              font: { size: 12 }
+            }
           },
           title: {
             display: true,
-            text: '',
+            text: 'Top 10 localidades con más restaurantes',
             font: { size: 15, weight: 'bold' },
             color: '#333',
             padding: { bottom: 14 }
@@ -120,11 +143,11 @@ export class GraficoDonutComponent implements OnDestroy {
               label: ctx => {
                 // TODO - Calculamos el total sumando todos los valores del dataset
                 // total: se calculará cogiendo los datos de ctx.dataset.data y podemos hacer uso de reduce para el resultado acumulado
-                const total = 0;
+                const total = (ctx.dataset.data as number[]).reduce((acc, v) => acc + v, 0);
                 // porcentaje: Si total es mayor que 0, habrá que calcular el porcentaje del trozo de donuts que hemos seleccionado (ctx.parsed)
-                const porcentaje = 0;
+                const porcentaje = total > 0 ? (ctx.parsed / total) * 100 : 0;
                 //Devolver el texto a mostrar
-                return ` restaurantes `;
+                return ` ${ctx.label}: ${ctx.parsed} restaurantes (${porcentaje.toFixed(1)}%)`;
               }
             }
           }

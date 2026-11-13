@@ -27,6 +27,7 @@ export class GraficoBarraHorizontalComponent implements OnDestroy {
     effect(() => {
       const data = this.restaurantes();
       const c = this.canvas();
+      console.log('effect', data.length, c)
       if (!c) return;
 
       this.render(data, c.nativeElement);
@@ -58,27 +59,32 @@ export class GraficoBarraHorizontalComponent implements OnDestroy {
   private render(data: Restaurante[], canvas: HTMLCanvasElement) {
     // TODO - antes de crear una nueva gráfica, libera la instancia anterior.
     // El efecto puede ejecutarse de nuevo cuando cambien los datos.
+    this.chart?.destroy();
 
     // TODO - decide qué propiedad de Restaurante representa cada categoría.
     // 'counts' debe ser una estructura de pares clave-valor: la clave será
     // el texto que aparecerá junto a cada barra (string) y el valor será su cantidad (number).
     // Así podrás consultar si una categoría ya existe y aumentar su contador.
-    const counts = null;
+    const counts = new Map<string, number>();
+    
     data.forEach(r => {
       // TODO - usa en cada restaurante el campo relacionado con el tipo de establecimiento (restorationType).
       // Si el campo no tiene contenido, lo llamaremos 'Desconocido'.
-      const tipo = null;
+      const tipo = r.restorationType?.trim() || 'Desconocido';
+      
       // TODO - busca la cantidad acumulada para esta categoría y actualiza
       // ese valor. Si aparece por primera vez, debe comenzar desde cero.
       // Leemos el valor de cantidadActual, mediante counts.get del tipo o sino ponemos 0
       // Sumamos 1 a esa cantidad y hacemos el counts.set de la nueva cantidad
-
+      const cantidadActual = counts.get(tipo) ?? 0;
+      counts.set(tipo, cantidadActual + 1);
     });
 
     // TODO - transforma la estructura anterior en una lista de entradas,
     // donde cada entrada mantiene juntas la categoría y su cantidad. Después
     // ordénala usando la cantidad para que la gráfica sea más fácil de leer.
-    const sorted = null;
+    const sorted = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1]);
 
     // TOOD - crea la instancia de Chart.js sobre el canvas recibido y
     // completa sus dos partes principales: los datos y las opciones visuales.
@@ -89,13 +95,13 @@ export class GraficoBarraHorizontalComponent implements OnDestroy {
         // TODO - Chart.js necesita una lista de etiquetas y otra de valores.
         // Extrae de cada entrada la posición que corresponde a cada lista,
         // manteniendo el orden para que cada barra tenga su etiqueta correcta.
-        labels: [],
+        labels: sorted.map(([tipo]) => tipo),
         datasets: [{
-          label: '',
+          label: 'Restaurantes',
           // TODO - sustituye este array por los valores numéricos calculados.
-          data: [],
-          backgroundColor: [],
-          borderColor:     [],
+          data: sorted.map(([, cantidad]) => cantidad),
+          backgroundColor: sorted.map((_, i) => CHART_PALETTE[i % CHART_PALETTE.length]),
+          borderColor:     sorted.map((_, i) => CHART_PALETTE[i % CHART_PALETTE.length]),
           borderWidth: 2,
           borderRadius: 6,
         }]
@@ -104,16 +110,16 @@ export class GraficoBarraHorizontalComponent implements OnDestroy {
         // TODO: consulta qué opción cambia la orientación predeterminada
         // de las barras y comprueba qué valor debe recibir para ponerlas en
         // horizontal.
-
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           title: {
             display: true,
-            text: '',
+            text: 'Restaurantes por tipo de establecimiento',
             font: { size: 15, weight: 'bold' },
-            color: '#333',
+            color: '#ccb3b3',
             padding: { bottom: 14 }
           },
           tooltip: {
@@ -128,11 +134,11 @@ export class GraficoBarraHorizontalComponent implements OnDestroy {
         scales: {
           x: {
             beginAtZero: true,
-            ticks: { stepSize: 1, color: '#555' },
-            grid: { color: 'rgba(0,0,0,0.06)' }
+            ticks: { stepSize: 25, color: '#ccb3b3' },
+            grid: { color: 'rgba(243, 236, 236, 0.2)' }
           },
           y: {
-            ticks: { color: '#555' },
+            ticks: { color: '#ccb3b3' },
             grid: { display: false }
           }
         }

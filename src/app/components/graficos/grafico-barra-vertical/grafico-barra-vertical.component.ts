@@ -119,9 +119,10 @@ export class GraficoBarraVerticalComponent implements OnDestroy {
             beginAtZero: true,
             ticks: {
               precision: 0,
+              color: '#ccb3b3',
               stepSize: 25
             },
-            grid: {display: true, color: 'rgba(0,0,0,0.08)'},
+            grid: { color: 'rgba(243, 236, 236, 0.2)' }
             
           },
           x: {
