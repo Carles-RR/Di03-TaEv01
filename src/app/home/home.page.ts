@@ -422,7 +422,7 @@ export class HomePage {
 
   /** Pide confirmación y borra el restaurante indicado de Firebase */
   async borrarRestaurante(r: Restaurante) {
-    const alert = await this.alertCtrl.create({
+      const alert = await this.alertCtrl.create({
       header: 'Confirmar borrado',
       subHeader: `¿Deseas borrar el restaurante ${r.documentName}?`,
       message: 'Este proceso es irreversible',

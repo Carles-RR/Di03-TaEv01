@@ -125,7 +125,7 @@ export class GraficoDonutComponent implements OnDestroy {
             display:true,
             position: 'right',
             labels: {
-              color: '#555',
+              color: '#ccb3b3',
               padding: 12,
               boxWidth: 14,
               font: { size: 12 }
@@ -135,7 +135,7 @@ export class GraficoDonutComponent implements OnDestroy {
             display: true,
             text: 'Top 10 localidades con más restaurantes',
             font: { size: 15, weight: 'bold' },
-            color: '#333',
+            color: '#ccb3b3',
             padding: { bottom: 14 }
           },
           tooltip: {
